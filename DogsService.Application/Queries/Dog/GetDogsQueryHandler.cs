@@ -32,7 +32,10 @@ namespace DogsService.Application.Queries.Dog
             int skip = (request.PageNumber - 1) * request.PageSize;
             query = query.Skip(skip).Take(request.PageSize);
 
-            var dogs = await query.ToListAsync(cancellationToken);
+            var dogs = query is IAsyncEnumerable<DogEntity> 
+                ? await query.ToListAsync(cancellationToken)
+                : query.ToList(); // for possible testing
+
             return mapper.Map<List<DogDto>>(dogs);
         }
     }
