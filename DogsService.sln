@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DogsService.Domain", "DogsS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DogsService.Infrastructure", "DogsService.Infrastructure\DogsService.Infrastructure.csproj", "{9AC8702C-8F9A-4C85-B00B-05078C7E0845}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DogsService.Application", "DogsService.Application\DogsService.Application.csproj", "{BF0C8C65-1E5D-4650-B99F-B950FA543931}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DogsService.Application", "DogsService.Application\DogsService.Application.csproj", "{BF0C8C65-1E5D-4650-B99F-B950FA543931}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DogsService.Tests", "DogsService.Tests\DogsService.Tests.csproj", "{DCEEBE0A-9B8A-4210-B3A2-44EF6E580A38}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{BF0C8C65-1E5D-4650-B99F-B950FA543931}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF0C8C65-1E5D-4650-B99F-B950FA543931}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF0C8C65-1E5D-4650-B99F-B950FA543931}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DCEEBE0A-9B8A-4210-B3A2-44EF6E580A38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCEEBE0A-9B8A-4210-B3A2-44EF6E580A38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCEEBE0A-9B8A-4210-B3A2-44EF6E580A38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCEEBE0A-9B8A-4210-B3A2-44EF6E580A38}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
