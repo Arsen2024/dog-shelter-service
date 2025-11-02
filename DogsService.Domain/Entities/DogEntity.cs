@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace DogsService.Domain.Entities;
 
-namespace DogsService.Domain.Entities
+public class DogEntity
 {
-    public class DogEntity
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; } = null!;
-        public string Color { get; set; } = null!;
-        public int TailLength { get; set; }
-        public int Weight { get; set; }
-    }
+    public Guid Id { get; set; }
+    public string Name { get; set; } = null!;
+    public string Color { get; set; } = null!;
+    public int TailLength { get; set; }
+    public int Weight { get; set; }
 }
