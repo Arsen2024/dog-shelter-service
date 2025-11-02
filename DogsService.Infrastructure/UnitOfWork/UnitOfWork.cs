@@ -4,12 +4,12 @@ using DogsService.Infrastructure.DbContext;
 namespace DogsService.Infrastructure.UnitOfWork;
 
 public class UnitOfWork(
-    AppDbContext context,
-    IDogRepository dogRepository
+    AppDbContext _dbContext,
+    IDogRepository _dogRepository
     ) : IUnitOfWork
 {
-    public IDogRepository Dogs => dogRepository;
+    public IDogRepository Dogs => _dogRepository;
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
-        await context.SaveChangesAsync(cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
 }

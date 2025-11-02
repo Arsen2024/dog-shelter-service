@@ -5,12 +5,12 @@ using DogsService.Infrastructure.DbContext;
 namespace DogsService.Infrastructure.Repositories;
 
 public class DogRepository(
-    AppDbContext context
+    AppDbContext _dbContext
     ) : IDogRepository
 {
     public IQueryable<DogEntity> Query()
-        => context.Dogs.AsQueryable();
+        => _dbContext.Dogs.AsQueryable();
 
     public async Task CreateAsync(DogEntity entity, CancellationToken cancellationToken)
-        => await context.Dogs.AddAsync(entity, cancellationToken);
+        => await _dbContext.Dogs.AddAsync(entity, cancellationToken);
 }

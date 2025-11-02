@@ -7,12 +7,12 @@ using Microsoft.EntityFrameworkCore;
 namespace DogsService.Application.Commands.Dog;
 
 public class CreateDogCommandHandler(
-    IUnitOfWork unitOfWork
+    IUnitOfWork _unitOfWork
     ) : IRequestHandler<CreateDogCommand, Unit>
 {
     public async Task<Unit> Handle(CreateDogCommand request, CancellationToken cancellationToken)
     {
-        var query = unitOfWork.Dogs.Query();
+        var query = _unitOfWork.Dogs.Query();
 
         var dublicate = query is IAsyncEnumerable<DogEntity>
             ? await query.FirstOrDefaultAsync(d => d.Name == request.Name, cancellationToken)
@@ -30,8 +30,8 @@ public class CreateDogCommandHandler(
             Weight = request.Weight,
         };
 
-        await unitOfWork.Dogs.CreateAsync(dog, cancellationToken);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.Dogs.CreateAsync(dog, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Unit.Value;
     }

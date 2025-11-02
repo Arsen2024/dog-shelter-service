@@ -9,13 +9,13 @@ using System.Linq.Dynamic.Core;
 namespace DogsService.Application.Queries.Dog;
 
 public class GetDogsQueryHandler(
-    IMapper mapper,
-    IUnitOfWork unitOfWork
+    IMapper _mapper,
+    IUnitOfWork _unitOfWork
     ) : IRequestHandler<GetDogsQuery, List<DogDto>>
 {
     public async Task<List<DogDto>> Handle(GetDogsQuery request, CancellationToken cancellationToken)
     {
-        var query = unitOfWork.Dogs.Query();
+        var query = _unitOfWork.Dogs.Query();
 
         if (!string.IsNullOrEmpty(request.Attribute))
         {
@@ -30,6 +30,6 @@ public class GetDogsQueryHandler(
             ? await query.ToListAsync(cancellationToken)
             : query.ToList(); // for possible testing
 
-        return mapper.Map<List<DogDto>>(dogs);
+        return _mapper.Map<List<DogDto>>(dogs);
     }
 }

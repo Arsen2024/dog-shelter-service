@@ -14,11 +14,11 @@ public class GetDogsQueryHandlerTests
     {
         // Arrange
         var dogs = new List<DogEntity>
-            {
-                new DogEntity { Name = "B", Weight = 10 },
-                new DogEntity { Name = "A", Weight = 20 },
-                new DogEntity { Name = "C", Weight = 15 },
-            }.AsQueryable();
+        {
+            new DogEntity { Name = "B", Weight = 10 },
+            new DogEntity { Name = "A", Weight = 20 },
+            new DogEntity { Name = "C", Weight = 15 },
+        }.AsQueryable();
 
         var repository = new Mock<IDogRepository>();
         repository.Setup(r => r.Query()).Returns(dogs);

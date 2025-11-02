@@ -6,19 +6,19 @@ using System.Text.Json;
 namespace DogsService.API.Middleware;
 
 public class ExceptionHandlingMiddleware(
-    RequestDelegate next,
-    ILogger<ExceptionHandlingMiddleware> logger
+    RequestDelegate _nextMiddleware,
+    ILogger<ExceptionHandlingMiddleware> _logger
     )
 {
     public async Task Invoke(HttpContext context)
     {
         try
         {
-            await next(context);
+            await _nextMiddleware(context);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Unhandled exception");
+            _logger.LogError(ex, "Unhandled exception");
 
             context.Response.StatusCode = ex switch
             {
