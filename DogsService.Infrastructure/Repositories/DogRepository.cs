@@ -9,8 +9,12 @@ public class DogRepository(
     ) : IDogRepository
 {
     public IQueryable<DogEntity> Query()
-        => _dbContext.Dogs.AsQueryable();
+    {
+        return _dbContext.Dogs.AsQueryable();
+    }
 
     public async Task CreateAsync(DogEntity entity, CancellationToken cancellationToken)
-        => await _dbContext.Dogs.AddAsync(entity, cancellationToken);
+    {
+        await _dbContext.Dogs.AddAsync(entity, cancellationToken);
+    }
 }

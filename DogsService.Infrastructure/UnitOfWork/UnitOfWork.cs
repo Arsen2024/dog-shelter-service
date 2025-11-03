@@ -10,6 +10,9 @@ public class UnitOfWork(
 {
     public IDogRepository Dogs => _dogRepository;
 
-    public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
-        await _dbContext.SaveChangesAsync(cancellationToken);
+    // No need for async/await — avoids extra state machine allocation and improves perf.
+    public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        return _dbContext.SaveChangesAsync(cancellationToken);
+    }
 }
