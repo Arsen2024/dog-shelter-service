@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using DogsService.Application.DTOs.Dog;
-using DogsService.Domain.Entities;
+using DogsService.Application.Extensions;
 using DogsService.Domain.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -26,9 +26,7 @@ public class GetDogsQueryHandler(
         int skip = (request.PageNumber - 1) * request.PageSize;
         query = query.Skip(skip).Take(request.PageSize);
 
-        var dogs = query is IAsyncEnumerable<DogEntity>
-            ? await query.ToListAsync(cancellationToken)
-            : query.ToList(); // for possible testing
+        var dogs = await query.ToListSafeAsync(cancellationToken);
 
         return _mapper.Map<List<DogDto>>(dogs);
     }

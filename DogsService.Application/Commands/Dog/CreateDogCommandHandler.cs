@@ -1,4 +1,5 @@
 ﻿using DogsService.Application.Exceptions;
+using DogsService.Application.Extensions;
 using DogsService.Domain.Entities;
 using DogsService.Domain.Interfaces;
 using MediatR;
@@ -14,11 +15,9 @@ public class CreateDogCommandHandler(
     {
         var query = _unitOfWork.Dogs.Query();
 
-        var dublicate = query is IAsyncEnumerable<DogEntity>
-            ? await query.FirstOrDefaultAsync(d => d.Name == request.Name, cancellationToken)
-            : query.FirstOrDefault(d => d.Name == request.Name); // for possible testing
+        var duplicate = await query.FirstOrDefaultSafeAsync(d => d.Name == request.Name, cancellationToken);
 
-        if (dublicate != null)
+        if (duplicate != null)
             throw new DuplicateDogNameException(request.Name);
 
         var dog = new DogEntity
