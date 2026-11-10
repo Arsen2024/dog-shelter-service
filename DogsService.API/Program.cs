@@ -1,4 +1,3 @@
-using DogsService.Application.Commands.Dog;
 using DogsService.Application.Mappings;
 using DogsService.Domain.Interfaces;
 using DogsService.Infrastructure.DbContext;
@@ -11,6 +10,7 @@ using FluentValidation;
 using DogsService.API.Middleware;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
+using DogsService.Application.Commands.Dog;
 
 var builder = WebApplication.CreateBuilder(args);
 

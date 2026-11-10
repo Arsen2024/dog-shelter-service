@@ -1,4 +1,5 @@
-﻿using DogsService.Application.Exceptions;
+﻿using DogsService.Application.Commands.Dog.Create;
+using DogsService.Application.Exceptions;
 using DogsService.Application.Extensions;
 using DogsService.Domain.Entities;
 using DogsService.Domain.Interfaces;

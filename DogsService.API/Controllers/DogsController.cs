@@ -1,4 +1,5 @@
-﻿using DogsService.Application.Commands.Dog;
+﻿using DogsService.Application.Commands.Dog.Create;
+using DogsService.Application.Commands.Dog.Delete;
 using DogsService.Application.Queries.Dog;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -23,5 +24,12 @@ public class DogsController(IMediator _mediator) : Controller
     {
         var result = await _mediator.Send(command);
         return Ok(result);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        await _mediator.Send(new DeleteDogCommand(id));
+        return NoContent();
     }
 }

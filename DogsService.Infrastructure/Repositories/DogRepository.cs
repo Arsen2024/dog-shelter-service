@@ -17,4 +17,9 @@ public class DogRepository(
     {
         await _dbContext.Dogs.AddAsync(entity, cancellationToken);
     }
+
+    public void Delete(DogEntity entity)
+    {
+        _dbContext.Dogs.Remove(entity);
+    }
 }
