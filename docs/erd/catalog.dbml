@@ -1,0 +1,61 @@
+// Вставте на https://dbdiagram.io  (DogsDb, Проєкт №2, EF Core)
+Table Breeds {
+  Id uniqueidentifier [pk]
+  Name nvarchar(100) [unique, not null]
+  Description nvarchar(500)
+}
+
+Table Kennels {
+  Id uniqueidentifier [pk]
+  Name nvarchar(100) [unique, not null]
+  Location nvarchar(200)
+  Capacity int [note: 'CHECK > 0']
+}
+
+Table Dogs {
+  Id uniqueidentifier [pk]
+  Name nvarchar(100) [not null, note: 'unique filtered IsDeleted=0']
+  Color nvarchar(100)
+  TailLength int [note: 'CHECK >= 0']
+  Weight decimal(6,2) [note: 'CHECK > 0']
+  Status nvarchar(30) [note: 'CHECK IN (...)']
+  BreedId uniqueidentifier [not null]
+  KennelId uniqueidentifier
+  CreatedAt datetime2
+  CreatedBy nvarchar(100)
+  UpdatedAt datetime2
+  UpdatedBy nvarchar(100)
+  IsDeleted bit
+  DeletedAt datetime2
+  RowVersion rowversion
+}
+
+Table DogProfiles {
+  DogId uniqueidentifier [pk]
+  BirthDate datetime2
+  Gender nvarchar(20) [note: 'CHECK IN (Male, Female, Unknown)']
+  Description nvarchar(1000)
+  Temperament nvarchar(500)
+}
+
+Table Features {
+  Id uniqueidentifier [pk]
+  Name nvarchar(100) [unique, not null]
+  Description nvarchar(500)
+}
+
+Table DogFeatures {
+  DogId uniqueidentifier [not null]
+  FeatureId uniqueidentifier [not null]
+  AssignedAt datetime2
+  Notes nvarchar(500)
+  indexes {
+    (DogId, FeatureId) [pk]
+  }
+}
+
+Ref: Dogs.BreedId > Breeds.Id
+Ref: Dogs.KennelId > Kennels.Id
+Ref: DogProfiles.DogId - Dogs.Id
+Ref: DogFeatures.DogId > Dogs.Id
+Ref: DogFeatures.FeatureId > Features.Id

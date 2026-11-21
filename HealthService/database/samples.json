@@ -1,0 +1,47 @@
+{
+  "medicalRecords": {
+    "_id": { "$oid": "65f000000000000000000002" },
+    "dogId": "d0000000-0000-0000-0000-000000000002",
+    "dogName": "Bella",
+    "allergies": [{ "substance": "Курка", "severity": "Moderate", "notedAt": { "$date": "2026-03-05T00:00:00Z" } }],
+    "chronicConditions": [{ "name": "Дисплазія кульшових суглобів", "diagnosedAt": { "$date": "2025-11-20T00:00:00Z" } }],
+    "notes": [],
+    "createdAt": { "$date": "2026-01-10T09:05:00Z" }
+  },
+  "vaccinations": {
+    "_id": { "$oid": "65f100000000000000000001" },
+    "dogId": "d0000000-0000-0000-0000-000000000001",
+    "dogName": "Rex",
+    "medicalRecordId": { "$oid": "65f000000000000000000001" },
+    "vaccinatedAt": { "$date": "2026-02-01T00:00:00Z" },
+    "nextDueAt": { "$date": "2027-02-01T00:00:00Z" },
+    "vaccines": [
+      { "name": "Rabies", "manufacturer": "Nobivac", "batchNumber": "R-2201", "doseMl": 1.0 },
+      { "name": "DHPPi", "manufacturer": "Eurican", "batchNumber": "E-9921", "doseMl": 1.0 }
+    ]
+  },
+  "veterinaryVisits_Surgery": {
+    "_id": { "$oid": "65f200000000000000000002" },
+    "dogId": "d0000000-0000-0000-0000-000000000004",
+    "dogName": "Luna",
+    "medicalRecordId": { "$oid": "65f000000000000000000004" },
+    "dogSnapshot": { "name": "Luna", "breed": "Mixed Breed", "weightKg": 9.8 },
+    "visitDate": { "$date": "2026-10-15T08:30:00Z" },
+    "visitType": "Surgery",
+    "symptoms": ["кульгання", "біль у задній лапі"],
+    "diagnosis": "Перелом кісточки",
+    "anesthesia": { "type": "General", "durationMin": 90 },
+    "operationNotes": "Остеосинтез, фіксація пластиною."
+  },
+  "veterinaryVisits_Checkup": {
+    "_id": { "$oid": "65f200000000000000000001" },
+    "dogId": "d0000000-0000-0000-0000-000000000001",
+    "dogName": "Rex",
+    "medicalRecordId": { "$oid": "65f000000000000000000001" },
+    "visitDate": { "$date": "2026-02-01T10:00:00Z" },
+    "visitType": "Checkup",
+    "diagnosis": "Здоровий",
+    "weightKg": 29.5,
+    "temperatureC": 38.4
+  }
+}

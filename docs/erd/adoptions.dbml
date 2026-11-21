@@ -1,0 +1,91 @@
+// Вставте на https://dbdiagram.io  (AdoptionsDb, Проєкт №1, ADO.NET + Dapper)
+Table Dogs {
+  Id uniqueidentifier [pk]
+  Name nvarchar(100) [not null]
+  Status nvarchar(30) [not null, default: 'Available']
+  SyncedAt datetime2
+  Note: 'Локальна копія довідника DogsService (власник даних - DogsDb)'
+}
+
+Table Adopters {
+  Id uniqueidentifier [pk]
+  FullName nvarchar(200) [not null]
+  Email nvarchar(256) [not null, note: 'UNIQUE серед IsDeleted=0']
+  Phone nvarchar(30)
+  Address nvarchar(400)
+  CreatedAt datetime2
+  CreatedBy nvarchar(100)
+  UpdatedAt datetime2
+  UpdatedBy nvarchar(100)
+  IsDeleted bit
+  RowVersion rowversion
+}
+
+Table AdoptionApplications {
+  Id uniqueidentifier [pk]
+  AdopterId uniqueidentifier [not null]
+  Status nvarchar(30) [not null]
+  SubmittedAt datetime2
+  DecisionNote nvarchar(1000)
+  IsDeleted bit
+  RowVersion rowversion
+}
+
+Table ApplicationDogs {
+  ApplicationId uniqueidentifier [not null]
+  DogId uniqueidentifier [not null]
+  DogName nvarchar(100) [note: 'знімок на момент заявки']
+  Priority int
+  AddedAt datetime2
+  indexes {
+    (ApplicationId, DogId) [pk]
+  }
+}
+
+Table ApplicationStatusHistory {
+  Id bigint [pk, increment]
+  ApplicationId uniqueidentifier [not null]
+  OldStatus nvarchar(30)
+  NewStatus nvarchar(30) [not null]
+  ChangedAt datetime2
+  ChangedBy nvarchar(100)
+  Comment nvarchar(500)
+}
+
+Table AdoptionAgreements {
+  ApplicationId uniqueidentifier [pk]
+  DogId uniqueidentifier [not null]
+  AgreementNumber nvarchar(50) [unique, not null]
+  SignedAt datetime2
+  SignedBy nvarchar(200)
+  Terms nvarchar(2000)
+}
+
+Table Requirements {
+  Id uniqueidentifier [pk]
+  Code nvarchar(50) [unique, not null]
+  Title nvarchar(200)
+  Description nvarchar(1000)
+  IsMandatory bit
+}
+
+Table ApplicationRequirements {
+  ApplicationId uniqueidentifier [not null]
+  RequirementId uniqueidentifier [not null]
+  IsFulfilled bit
+  CheckedAt datetime2
+  CheckedBy nvarchar(100)
+  Notes nvarchar(500)
+  indexes {
+    (ApplicationId, RequirementId) [pk]
+  }
+}
+
+Ref: AdoptionApplications.AdopterId > Adopters.Id
+Ref: ApplicationDogs.ApplicationId > AdoptionApplications.Id
+Ref: ApplicationDogs.DogId > Dogs.Id
+Ref: ApplicationStatusHistory.ApplicationId > AdoptionApplications.Id
+Ref: AdoptionAgreements.ApplicationId - AdoptionApplications.Id
+Ref: AdoptionAgreements.DogId > Dogs.Id
+Ref: ApplicationRequirements.ApplicationId > AdoptionApplications.Id
+Ref: ApplicationRequirements.RequirementId > Requirements.Id
