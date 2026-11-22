@@ -5,11 +5,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="MediatR" Version="12.4.1" />
-    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
+    <!-- 14.0.0 — остання версія без обов'язкового ліцензійного ключа (15.0+ потребує Community-ключ) -->
+    <PackageReference Include="AutoMapper" Version="14.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
   </ItemGroup>
   <ItemGroup>
+    <!-- Api → Bll → Dal: Application (BLL) бачить Infrastructure (DAL) -->
     <ProjectReference Include="..\AdoptionsService.Domain\AdoptionsService.Domain.csproj" />
+    <ProjectReference Include="..\AdoptionsService.Infrastructure\AdoptionsService.Infrastructure.csproj" />
   </ItemGroup>
 </Project>
