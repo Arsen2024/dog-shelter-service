@@ -8,7 +8,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
   </ItemGroup>
   <ItemGroup>
+    <!-- Web/API бачить лише BLL (Application); Infrastructure підтягується через нього -->
     <ProjectReference Include="..\AdoptionsService.Application\AdoptionsService.Application.csproj" />
-    <ProjectReference Include="..\AdoptionsService.Infrastructure\AdoptionsService.Infrastructure.csproj" />
   </ItemGroup>
 </Project>

@@ -1,9 +1,6 @@
-using System.Threading.RateLimiting;
 using AdoptionsService.API.Middleware;
 using AdoptionsService.Application;
 using AdoptionsService.Domain.Interfaces;
-using AdoptionsService.Infrastructure;
-using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,29 +9,27 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddRateLimiter(options =>
-{
-    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+// ProblemDetails для всіх помилок (400 від DataAnnotations, 404 маршрутів, виняткові ситуації) + traceId
+builder.Services.AddProblemDetails(options =>
+    options.CustomizeProblemDetails = ctx =>
+        ctx.ProblemDetails.Extensions["traceId"] = ctx.HttpContext.TraceIdentifier);
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
-    options.AddFixedWindowLimiter("fixed", o =>
-    {
-        o.Window = TimeSpan.FromSeconds(5);
-        o.PermitLimit = 10;
-        o.QueueLimit = 0;
-        o.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-    });
-});
-
-var connectionString = builder.Configuration.GetConnectionString("AdoptionsDatabase")
-    ?? throw new InvalidOperationException("Connection string 'AdoptionsDatabase' is missing.");
+// Ім'я рядка підключення збігається з ім'ям ресурсу в Aspire AppHost (AddConnectionString("AdoptionsDb")).
+// Перевизначається змінною оточення ConnectionStrings__AdoptionsDb.
+var connectionString = builder.Configuration.GetConnectionString("AdoptionsDb")
+    ?? throw new InvalidOperationException("Connection string 'AdoptionsDb' is not configured.");
 
 builder.Services.AddScoped<ICurrentUser, HttpCurrentUser>();
-builder.Services.AddApplication();
-builder.Services.AddInfrastructure(connectionString);
+builder.Services.AddApplication(connectionString);   // BLL + DAL (Unit of Work — Scoped)
 
 var app = builder.Build();
 
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+// перевірка конфігурації AutoMapper при старті
+app.Services.AssertMappingConfiguration();
+
+app.UseExceptionHandler();
+app.UseStatusCodePages();
 
 if (app.Environment.IsDevelopment())
 {
@@ -42,10 +37,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.MapGet("/ping", () => "AdoptionsService.Version1.0.0").RequireRateLimiting("fixed");
+app.MapGet("/ping", () => "AdoptionsService.Version2.0.0");
 
 app.UseHttpsRedirection();
-app.UseRateLimiter();
 app.MapControllers();
 
 app.Run();

@@ -1,28 +1,36 @@
-using AdoptionsService.Application.Commands;
-using AdoptionsService.Application.Queries;
-using MediatR;
+using AdoptionsService.Application.DTOs;
+using AdoptionsService.Application.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.RateLimiting;
 
 namespace AdoptionsService.API.Controllers;
 
 [ApiController]
-[EnableRateLimiting("fixed")]
-[Route("api/[controller]")]
-public class AdoptersController(IMediator _mediator) : ControllerBase
+[Route("api/adopters")]
+public class AdoptersController(IAdopterService service) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] GetAdoptersQuery query) =>
-        Ok(await _mediator.Send(query));
+    public async Task<ActionResult<List<AdopterDto>>> GetAll([FromQuery] PageQuery query, CancellationToken ct) =>
+        Ok(await service.GetPageAsync(query.PageNumber, query.PageSize, ct));
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById(Guid id) =>
-        Ok(await _mediator.Send(new GetAdopterByIdQuery(id)));
+    public async Task<ActionResult<AdopterDto>> GetById(Guid id, CancellationToken ct) =>
+        Ok(await service.GetByIdAsync(id, ct));
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateAdopterCommand command)
+    public async Task<ActionResult<AdopterDto>> Create([FromBody] CreateAdopterDto dto, CancellationToken ct)
     {
-        var id = await _mediator.Send(command);
-        return CreatedAtAction(nameof(GetById), new { id }, new { id });
+        var created = await service.CreateAsync(dto, ct);
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+    }
+
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<AdopterDto>> Update(Guid id, [FromBody] UpdateAdopterDto dto, CancellationToken ct) =>
+        Ok(await service.UpdateAsync(id, dto, ct));
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
+    {
+        await service.DeleteAsync(id, ct);
+        return NoContent();
     }
 }
