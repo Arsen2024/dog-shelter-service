@@ -1,43 +1,43 @@
-using System.Data;
 using AdoptionsService.Domain.Entities;
-using AdoptionsService.Domain.Interfaces;
-using AdoptionsService.Infrastructure.Data;
+using AdoptionsService.Infrastructure.Abstractions;
 using Dapper;
 
 namespace AdoptionsService.Infrastructure.Repositories;
 
-/// <summary>Dapper: створення — через збережену процедуру, читання — inline SQL.</summary>
-public class AdopterRepository(ISqlConnectionFactory factory) : SqlRepositoryBase(factory), IAdopterRepository
+/// <summary>Dapper-репозиторій №1: спільний CRUD з бази + пошук, пагінація, оптимістичне оновлення.</summary>
+public class AdopterRepository(IDbSession session)
+    : BaseDapperRepository<AdopterEntity>(session, "dbo.Adopters", softDelete: true), IAdopterRepository
 {
-    public Task<Guid> CreateAsync(string fullName, string email, string? phone, string? address, string? createdBy, CancellationToken ct) =>
-        RunAsync(conn => conn.QuerySingleAsync<Guid>(new CommandDefinition(
-            "dbo.usp_CreateAdopter",
-            new { FullName = fullName, Email = email, Phone = phone, Address = address, CreatedBy = createdBy },
-            commandType: CommandType.StoredProcedure,
-            cancellationToken: ct)), ct);
+    public Task<AdopterEntity?> GetByEmailAsync(string email, CancellationToken ct) =>
+        RunAsync(async (conn, tx) => await conn.QuerySingleOrDefaultAsync<AdopterEntity>(new CommandDefinition(
+            "SELECT * FROM dbo.Adopters WHERE Email = @Email AND IsDeleted = 0",
+            new { Email = email }, tx, cancellationToken: ct)), ct);
 
-    public Task<AdopterEntity?> GetByIdAsync(Guid id, CancellationToken ct) =>
-        RunAsync(conn => conn.QuerySingleOrDefaultAsync<AdopterEntity>(new CommandDefinition(
-            """
-            SELECT Id, FullName, Email, Phone, Address, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy, IsDeleted, RowVersion
-            FROM dbo.Adopters
-            WHERE Id = @Id AND IsDeleted = 0
-            """,
-            new { Id = id }, cancellationToken: ct)), ct);
-
-    public Task<List<AdopterEntity>> ListAsync(int pageNumber, int pageSize, CancellationToken ct) =>
-        RunAsync(async conn =>
+    public Task<IReadOnlyList<AdopterEntity>> GetPageAsync(int pageNumber, int pageSize, CancellationToken ct) =>
+        RunAsync<IReadOnlyList<AdopterEntity>>(async (conn, tx) =>
         {
             var rows = await conn.QueryAsync<AdopterEntity>(new CommandDefinition(
                 """
-                SELECT Id, FullName, Email, Phone, Address, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy, IsDeleted, RowVersion
-                FROM dbo.Adopters
+                SELECT * FROM dbo.Adopters
                 WHERE IsDeleted = 0
                 ORDER BY FullName, Id
                 OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY
                 """,
-                new { Offset = (pageNumber - 1) * pageSize, PageSize = pageSize },
-                cancellationToken: ct));
+                new { Offset = (pageNumber - 1) * pageSize, PageSize = pageSize }, tx, cancellationToken: ct));
             return rows.ToList();
+        }, ct);
+
+    public Task<bool> UpdateAsync(AdopterEntity entity, CancellationToken ct) =>
+        RunAsync(async (conn, tx) =>
+        {
+            var affected = await conn.ExecuteAsync(new CommandDefinition(
+                """
+                UPDATE dbo.Adopters
+                SET FullName = @FullName, Email = @Email, Phone = @Phone, Address = @Address,
+                    UpdatedAt = SYSUTCDATETIME(), UpdatedBy = @UpdatedBy
+                WHERE Id = @Id AND RowVersion = @RowVersion AND IsDeleted = 0
+                """,
+                entity, tx, cancellationToken: ct));
+            return affected > 0;
         }, ct);
 }

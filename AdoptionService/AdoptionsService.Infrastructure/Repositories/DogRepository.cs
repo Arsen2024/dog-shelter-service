@@ -1,15 +1,15 @@
 using AdoptionsService.Domain.Entities;
-using AdoptionsService.Domain.Interfaces;
-using AdoptionsService.Infrastructure.Data;
+using AdoptionsService.Infrastructure.Abstractions;
 using Dapper;
 
 namespace AdoptionsService.Infrastructure.Repositories;
 
 /// <summary>Локальна копія довідника собак. Власник даних — DogsService.</summary>
-public class DogRepository(ISqlConnectionFactory factory) : SqlRepositoryBase(factory), IDogRepository
+public class DogRepository(IDbSession session)
+    : BaseDapperRepository<DogEntity>(session, "dbo.Dogs"), IDogRepository
 {
     public Task UpsertAsync(Guid id, string name, string status, CancellationToken ct) =>
-        RunAsync(conn => conn.ExecuteAsync(new CommandDefinition(
+        RunAsync(async (conn, tx) => await conn.ExecuteAsync(new CommandDefinition(
             """
             MERGE dbo.Dogs AS t
             USING (SELECT @Id AS Id, @Name AS Name, @Status AS Status) AS s ON t.Id = s.Id
@@ -18,19 +18,14 @@ public class DogRepository(ISqlConnectionFactory factory) : SqlRepositoryBase(fa
             WHEN NOT MATCHED THEN
                 INSERT (Id, Name, Status) VALUES (s.Id, s.Name, s.Status);
             """,
-            new { Id = id, Name = name, Status = status },
-            cancellationToken: ct)), ct);
+            new { Id = id, Name = name, Status = status }, tx, cancellationToken: ct)), ct);
 
-    public Task<List<DogEntity>> ListAsync(string? status, CancellationToken ct) =>
-        RunAsync(async conn =>
+    public Task<IReadOnlyList<DogEntity>> GetByStatusAsync(string? status, CancellationToken ct) =>
+        RunAsync<IReadOnlyList<DogEntity>>(async (conn, tx) =>
         {
             var rows = await conn.QueryAsync<DogEntity>(new CommandDefinition(
-                """
-                SELECT Id, Name, Status, SyncedAt FROM dbo.Dogs
-                WHERE (@Status IS NULL OR Status = @Status)
-                ORDER BY Name
-                """,
-                new { Status = status }, cancellationToken: ct));
+                "SELECT Id, Name, Status, SyncedAt FROM dbo.Dogs WHERE (@Status IS NULL OR Status = @Status) ORDER BY Name",
+                new { Status = status }, tx, cancellationToken: ct));
             return rows.ToList();
         }, ct);
 }
