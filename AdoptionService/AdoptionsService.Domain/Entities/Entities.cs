@@ -28,6 +28,9 @@ public class AdoptionApplicationEntity
     public string? UpdatedBy { get; set; }
     public bool IsDeleted { get; set; }
     public byte[] RowVersion { get; set; } = [];
+
+    /// <summary>Заповнюється multi-mapping запитом (заявка + собаки одним SELECT).</summary>
+    public List<ApplicationDogEntity> Dogs { get; set; } = [];
 }
 
 public class ApplicationDogEntity
@@ -71,7 +74,6 @@ public class RequirementEntity
     public bool IsMandatory { get; set; }
 }
 
-/// <summary>M:N заявка ↔ вимога з власними полями.</summary>
 public class ApplicationRequirementEntity
 {
     public Guid ApplicationId { get; set; }
