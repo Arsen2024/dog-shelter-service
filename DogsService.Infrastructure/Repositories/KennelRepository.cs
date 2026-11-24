@@ -1,10 +1,9 @@
 using DogsService.Domain.Entities;
-using DogsService.Domain.Interfaces;
+using DogsService.Infrastructure.Abstractions;
 using DogsService.Infrastructure.DbContext;
 
 namespace DogsService.Infrastructure.Repositories;
 
-public class KennelRepository(AppDbContext _dbContext) : IKennelRepository
+public class KennelRepository(AppDbContext context) : EfRepository<KennelEntity>(context), IKennelRepository
 {
-    public IQueryable<KennelEntity> Query() => _dbContext.Kennels.AsQueryable();
 }
