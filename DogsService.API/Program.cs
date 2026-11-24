@@ -1,57 +1,57 @@
 using DogsService.API.Middleware;
-using DogsService.Application.Commands.Dog.Create;
-using DogsService.Application.Mappings;
-using DogsService.Application.Validators;
+using DogsService.Application;
 using DogsService.Domain.Interfaces;
 using DogsService.Infrastructure.DbContext;
-using DogsService.Infrastructure.Repositories;
-using DogsService.Infrastructure.UnitOfWork;
-using FluentValidation;
-using FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.RateLimiting;
+using DogsService.Infrastructure.Seeding;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.RateLimiting;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Serilog: структуровані логи (Console + File), властивості CorrelationId / UserId / RequestPath через LogContext.
+// Рівень Information для Microsoft.EntityFrameworkCore.Database.Command показує SQL (див. appsettings.json).
+builder.Host.UseSerilog((context, services, configuration) => configuration
+    .ReadFrom.Configuration(context.Configuration)
+    .ReadFrom.Services(services)
+    .Enrich.FromLogContext());
+
 builder.Services.AddControllers();
-builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddRateLimiter(options =>
-{
-    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+// ProblemDetails для всіх помилок + централізований обробник винятків
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
-    options.AddFixedWindowLimiter("fixed", options =>
-    {
-        options.Window = TimeSpan.FromSeconds(5);
-        options.PermitLimit = 10;
-        options.QueueLimit = 0;
-        options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-    });
-});
-
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DogsDatabase")));
-
-builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddFluentValidationClientsideAdapters();
-builder.Services.AddValidatorsFromAssemblyContaining<CreateDogCommandValidator>();
+var connectionString = builder.Configuration.GetConnectionString("DogsDatabase")
+    ?? throw new InvalidOperationException("Connection string 'DogsDatabase' is not configured.");
 
 builder.Services.AddScoped<ICurrentUser, HttpCurrentUser>();
-builder.Services.AddScoped<IDogRepository, DogRepository>();
-builder.Services.AddScoped<IBreedRepository, BreedRepository>();
-builder.Services.AddScoped<IKennelRepository, KennelRepository>();
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-builder.Services.AddAutoMapper(typeof(DogMappingProfile).Assembly);
-builder.Services.AddMediatR(options =>
-    options.RegisterServicesFromAssembly(typeof(CreateDogCommandHandler).Assembly));
+builder.Services.AddApplication(connectionString);   // BLL + DAL (DbContext, репозиторії, Unit of Work)
 
 var app = builder.Build();
 
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+// перевірка конфігурації AutoMapper при старті
+app.Services.AssertMappingConfiguration();
+
+// Міграції + програмний сідінг (довідники — через HasData у міграції).
+// Сідінг ідемпотентний і вимикається налаштуванням Seeding:Enabled (в Production — вимкнено).
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    if (app.Configuration.GetValue("Database:MigrateOnStartup", true))
+        await db.Database.MigrateAsync();
+
+    if (app.Configuration.GetValue("Seeding:Enabled", false))
+        await DbSeeder.SeedAsync(db, scope.ServiceProvider.GetRequiredService<ILogger<AppDbContext>>());
+}
+
+app.UseMiddleware<RequestContextMiddleware>();
+app.UseSerilogRequestLogging();
+app.UseExceptionHandler();
+app.UseStatusCodePages();
 
 if (app.Environment.IsDevelopment())
 {
@@ -59,12 +59,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.MapGet("/ping", () => "Dogshouseservice.Version1.0.1").RequireRateLimiting("fixed");
+app.MapGet("/ping", () => "DogsService.Version3.0.0");
 
 app.UseHttpsRedirection();
-
-app.UseRateLimiter();
-
 app.MapControllers();
 
 app.Run();
