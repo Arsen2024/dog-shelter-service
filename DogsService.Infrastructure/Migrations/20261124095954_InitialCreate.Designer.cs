@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DogsService.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261112223536_CatalogFixes")]
-    partial class CatalogFixes
+    [Migration("20261124095954_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -167,82 +167,6 @@ namespace DogsService.Infrastructure.Migrations
 
                             t.HasCheckConstraint("CK_Dogs_Weight", "[Weight] > 0");
                         });
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("d0000000-0000-0000-0000-000000000001"),
-                            BreedId = new Guid("11111111-1111-1111-1111-111111111111"),
-                            Color = "golden",
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatedBy = "seed",
-                            IsDeleted = false,
-                            KennelId = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                            Name = "Rex",
-                            RowVersion = new byte[0],
-                            Status = "Available",
-                            TailLength = 35,
-                            Weight = 29.50m
-                        },
-                        new
-                        {
-                            Id = new Guid("d0000000-0000-0000-0000-000000000002"),
-                            BreedId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            Color = "black & tan",
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatedBy = "seed",
-                            IsDeleted = false,
-                            KennelId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-                            Name = "Bella",
-                            RowVersion = new byte[0],
-                            Status = "Available",
-                            TailLength = 40,
-                            Weight = 27.00m
-                        },
-                        new
-                        {
-                            Id = new Guid("d0000000-0000-0000-0000-000000000003"),
-                            BreedId = new Guid("33333333-3333-3333-3333-333333333333"),
-                            Color = "brown & white",
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatedBy = "seed",
-                            IsDeleted = false,
-                            KennelId = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                            Name = "Max",
-                            RowVersion = new byte[0],
-                            Status = "Reserved",
-                            TailLength = 25,
-                            Weight = 12.30m
-                        },
-                        new
-                        {
-                            Id = new Guid("d0000000-0000-0000-0000-000000000004"),
-                            BreedId = new Guid("44444444-4444-4444-4444-444444444444"),
-                            Color = "grey",
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatedBy = "seed",
-                            IsDeleted = false,
-                            KennelId = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
-                            Name = "Luna",
-                            RowVersion = new byte[0],
-                            Status = "UnderTreatment",
-                            TailLength = 20,
-                            Weight = 9.80m
-                        },
-                        new
-                        {
-                            Id = new Guid("d0000000-0000-0000-0000-000000000005"),
-                            BreedId = new Guid("11111111-1111-1111-1111-111111111111"),
-                            Color = "black",
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatedBy = "seed",
-                            IsDeleted = false,
-                            Name = "Charlie",
-                            RowVersion = new byte[0],
-                            Status = "Adopted",
-                            TailLength = 33,
-                            Weight = 31.20m
-                        });
                 });
 
             modelBuilder.Entity("DogsService.Domain.Entities.DogFeatureEntity", b =>
@@ -264,63 +188,9 @@ namespace DogsService.Infrastructure.Migrations
 
                     b.HasKey("DogId", "FeatureId");
 
-                    b.HasIndex("FeatureId");
+                    b.HasIndex("FeatureId", "AssignedAt");
 
                     b.ToTable("DogFeatures", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            DogId = new Guid("d0000000-0000-0000-0000-000000000001"),
-                            FeatureId = new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"),
-                            AssignedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Notes = "Greets everyone"
-                        },
-                        new
-                        {
-                            DogId = new Guid("d0000000-0000-0000-0000-000000000001"),
-                            FeatureId = new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
-                            AssignedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Notes = "Basic commands"
-                        },
-                        new
-                        {
-                            DogId = new Guid("d0000000-0000-0000-0000-000000000002"),
-                            FeatureId = new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
-                            AssignedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
-                        },
-                        new
-                        {
-                            DogId = new Guid("d0000000-0000-0000-0000-000000000002"),
-                            FeatureId = new Guid("12345678-1234-1234-1234-123456789012"),
-                            AssignedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Notes = "Needs long walks"
-                        },
-                        new
-                        {
-                            DogId = new Guid("d0000000-0000-0000-0000-000000000003"),
-                            FeatureId = new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"),
-                            AssignedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
-                        },
-                        new
-                        {
-                            DogId = new Guid("d0000000-0000-0000-0000-000000000003"),
-                            FeatureId = new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"),
-                            AssignedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Notes = "Tested with kids"
-                        },
-                        new
-                        {
-                            DogId = new Guid("d0000000-0000-0000-0000-000000000004"),
-                            FeatureId = new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"),
-                            AssignedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
-                        },
-                        new
-                        {
-                            DogId = new Guid("d0000000-0000-0000-0000-000000000005"),
-                            FeatureId = new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"),
-                            AssignedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
-                        });
                 });
 
             modelBuilder.Entity("DogsService.Domain.Entities.DogProfileEntity", b =>
@@ -348,48 +218,6 @@ namespace DogsService.Infrastructure.Migrations
                     b.ToTable("DogProfiles", null, t =>
                         {
                             t.HasCheckConstraint("CK_DogProfiles_Gender", "[Gender] IS NULL OR [Gender] IN ('Male', 'Female', 'Unknown')");
-                        });
-
-                    b.HasData(
-                        new
-                        {
-                            DogId = new Guid("d0000000-0000-0000-0000-000000000001"),
-                            BirthDate = new DateTime(2022, 3, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "Energetic retriever, loves water.",
-                            Gender = "Male",
-                            Temperament = "Playful, friendly"
-                        },
-                        new
-                        {
-                            DogId = new Guid("d0000000-0000-0000-0000-000000000002"),
-                            BirthDate = new DateTime(2021, 7, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "Calm and attentive shepherd.",
-                            Gender = "Female",
-                            Temperament = "Loyal, calm"
-                        },
-                        new
-                        {
-                            DogId = new Guid("d0000000-0000-0000-0000-000000000003"),
-                            BirthDate = new DateTime(2023, 1, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "Curious beagle with a great nose.",
-                            Gender = "Male",
-                            Temperament = "Curious, social"
-                        },
-                        new
-                        {
-                            DogId = new Guid("d0000000-0000-0000-0000-000000000004"),
-                            BirthDate = new DateTime(2020, 11, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "Shy mixed-breed, recovering after surgery.",
-                            Gender = "Female",
-                            Temperament = "Shy, gentle"
-                        },
-                        new
-                        {
-                            DogId = new Guid("d0000000-0000-0000-0000-000000000005"),
-                            BirthDate = new DateTime(2019, 5, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "Adopted family dog.",
-                            Gender = "Male",
-                            Temperament = "Calm, affectionate"
                         });
                 });
 
