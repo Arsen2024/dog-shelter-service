@@ -1,20 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using DogsService.Domain.Exceptions;
 
 namespace DogsService.Domain.Entities;
+
 public class FeatureEntity
 {
-    public Guid Id { get; set; }
+    private readonly List<DogFeatureEntity> _dogFeatures = new();
 
-    public string Name { get; set; } = string.Empty;
+    private FeatureEntity() { }
 
-    public string? Description { get; set; }
+    public FeatureEntity(string name, string? description = null, Guid? id = null)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new DomainException("Feature name is required.");
 
-    // Navigation properties
+        Id = id ?? Guid.NewGuid();
+        Name = name.Trim();
+        Description = description;
+    }
 
-    public ICollection<DogFeatureEntity> DogFeatures { get; set; }
-        = new List<DogFeatureEntity>();
+    public Guid Id { get; private set; }
+    public string Name { get; private set; } = string.Empty;
+    public string? Description { get; private set; }
+
+    public IReadOnlyCollection<DogFeatureEntity> DogFeatures => _dogFeatures;
 }

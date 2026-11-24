@@ -1,20 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using DogsService.Domain.Exceptions;
 
 namespace DogsService.Domain.Entities;
+
 public class BreedEntity
 {
-    public Guid Id { get; set; }
+    private readonly List<DogEntity> _dogs = new();
 
-    public string Name { get; set; } = string.Empty;
+    private BreedEntity() { }
 
-    public string? Description { get; set; }
+    public BreedEntity(string name, string? description = null, Guid? id = null)
+    {
+        Id = id ?? Guid.NewGuid();
+        Rename(name);
+        Description = description;
+    }
 
-    // Navigation properties
+    public Guid Id { get; private set; }
+    public string Name { get; private set; } = string.Empty;
+    public string? Description { get; private set; }
 
-    public ICollection<DogEntity> Dogs { get; set; }
-        = new List<DogEntity>();
+    public IReadOnlyCollection<DogEntity> Dogs => _dogs;
+
+    public void Rename(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new DomainException("Breed name is required.");
+
+        Name = name.Trim();
+    }
+
+    public void ChangeDescription(string? description) => Description = description;
 }

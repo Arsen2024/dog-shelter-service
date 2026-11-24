@@ -1,23 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using DogsService.Domain.Exceptions;
 
 namespace DogsService.Domain.Entities;
+
+/// <summary>Проміжна сутність M:N (Dog ↔ Feature) з власними полями AssignedAt і Notes; складений ключ (DogId, FeatureId).</summary>
 public class DogFeatureEntity
 {
-    public Guid DogId { get; set; }
+    private DogFeatureEntity() { }
 
-    public Guid FeatureId { get; set; }
+    public DogFeatureEntity(Guid dogId, Guid featureId, string? notes = null, DateTime? assignedAt = null)
+    {
+        if (dogId == Guid.Empty || featureId == Guid.Empty)
+            throw new DomainException("DogId and FeatureId are required.");
 
-    public DateTime AssignedAt { get; set; }
+        DogId = dogId;
+        FeatureId = featureId;
+        Notes = notes;
+        AssignedAt = assignedAt ?? DateTime.UtcNow;
+    }
 
-    public string? Notes { get; set; }
+    public Guid DogId { get; private set; }
+    public Guid FeatureId { get; private set; }
+    public DateTime AssignedAt { get; private set; }
+    public string? Notes { get; private set; }
 
-    // Navigation properties
-
-    public DogEntity Dog { get; set; } = null!;
-
-    public FeatureEntity Feature { get; set; } = null!;
+    public DogEntity Dog { get; private set; } = null!;
+    public FeatureEntity Feature { get; private set; } = null!;
 }
