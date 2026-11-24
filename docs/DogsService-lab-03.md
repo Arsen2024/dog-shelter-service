@@ -165,9 +165,3 @@ Sink-и: Console і File (`logs/dogs-.log`, щоденна ротація). До
   "profile": { "birthDate": "2023-05-01", "gender": "Male", "description": "Friendly", "temperament": "Calm" }
 }
 ```
-
-## 11\. Git
-
-Гілки `main` / `develop` / `feature/lab-03`; коміти за кроками (domain → dal → bll → api → документація);
-злиття `feature/lab-03 → develop` через Pull Request з описом.
-
