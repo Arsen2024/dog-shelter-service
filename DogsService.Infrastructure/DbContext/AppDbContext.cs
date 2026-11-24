@@ -25,6 +25,8 @@ public class AppDbContext : Microsoft.EntityFrameworkCore.DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        // усі IEntityTypeConfiguration<T> підключаються централізовано
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
     }
 
@@ -40,6 +42,7 @@ public class AppDbContext : Microsoft.EntityFrameworkCore.DbContext
         return base.SaveChangesAsync(cancellationToken);
     }
 
+    /// <summary>Аудит і soft delete. Setter-и сутності приватні, тому значення задаються через ChangeTracker.</summary>
     private void ApplyAuditInformation()
     {
         var now = DateTime.UtcNow;
@@ -50,17 +53,17 @@ public class AppDbContext : Microsoft.EntityFrameworkCore.DbContext
             switch (entry.State)
             {
                 case EntityState.Added:
-                    if (entry.Entity.CreatedAt == default)
-                        entry.Entity.CreatedAt = now;
+                    if (entry.Property(d => d.CreatedAt).CurrentValue == default)
+                        entry.Property(d => d.CreatedAt).CurrentValue = now;
 
-                    entry.Entity.CreatedBy ??= user;
-                    entry.Entity.IsDeleted = false;
-                    entry.Entity.DeletedAt = null;
+                    entry.Property(d => d.CreatedBy).CurrentValue ??= user;
+                    entry.Property(d => d.IsDeleted).CurrentValue = false;
+                    entry.Property(d => d.DeletedAt).CurrentValue = null;
                     break;
 
                 case EntityState.Modified:
-                    entry.Entity.UpdatedAt = now;
-                    entry.Entity.UpdatedBy = user;
+                    entry.Property(d => d.UpdatedAt).CurrentValue = now;
+                    entry.Property(d => d.UpdatedBy).CurrentValue = user;
 
                     entry.Property(d => d.CreatedAt).IsModified = false;
                     entry.Property(d => d.CreatedBy).IsModified = false;
@@ -70,10 +73,10 @@ public class AppDbContext : Microsoft.EntityFrameworkCore.DbContext
                     // soft delete
                     entry.State = EntityState.Modified;
 
-                    entry.Entity.IsDeleted = true;
-                    entry.Entity.DeletedAt = now;
-                    entry.Entity.UpdatedAt = now;
-                    entry.Entity.UpdatedBy = user;
+                    entry.Property(d => d.IsDeleted).CurrentValue = true;
+                    entry.Property(d => d.DeletedAt).CurrentValue = now;
+                    entry.Property(d => d.UpdatedAt).CurrentValue = now;
+                    entry.Property(d => d.UpdatedBy).CurrentValue = user;
                     break;
             }
         }
