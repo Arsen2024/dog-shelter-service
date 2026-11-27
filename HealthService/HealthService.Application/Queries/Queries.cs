@@ -1,69 +1,58 @@
+using HealthService.Application.Abstractions;
 using HealthService.Application.DTOs;
-using HealthService.Application.Mappings;
 using HealthService.Domain.Enums;
 using HealthService.Domain.Exceptions;
-using HealthService.Domain.Interfaces;
 using MediatR;
+using MongoDB.Bson;
 
 namespace HealthService.Application.Queries;
 
-public record GetMedicalRecordByDogIdQuery(Guid DogId) : IRequest<MedicalRecordDto>;
+// Обробники запитів звертаються лише до IXxxQueries; IMongoCollection в Application недоступний.
 
-public class GetMedicalRecordByDogIdQueryHandler(IMedicalRecordRepository _records)
+public record GetVisitByIdQuery(string Id) : IQuery<VisitDto>;
+
+public class GetVisitByIdQueryHandler(IVisitQueries queries) : IRequestHandler<GetVisitByIdQuery, VisitDto>
+{
+    public async Task<VisitDto> Handle(GetVisitByIdQuery request, CancellationToken cancellationToken) =>
+        await queries.GetByIdAsync(ObjectId.Parse(request.Id), cancellationToken)
+        ?? throw new NotFoundException("Visit", request.Id);
+}
+
+public record GetVisitsListQuery(
+    Guid? DogId, VisitType? Type, string? Search, int Page = 1, int PageSize = 20)
+    : IQuery<PagedResult<VisitListItemDto>>;
+
+public class GetVisitsListQueryHandler(IVisitQueries queries)
+    : IRequestHandler<GetVisitsListQuery, PagedResult<VisitListItemDto>>
+{
+    public Task<PagedResult<VisitListItemDto>> Handle(GetVisitsListQuery request, CancellationToken cancellationToken) =>
+        queries.GetListAsync(request.DogId, request.Type, request.Search?.Trim(), request.Page, request.PageSize, cancellationToken);
+}
+
+public record GetMedicalRecordByDogIdQuery(Guid DogId) : IQuery<MedicalRecordDto>;
+
+public class GetMedicalRecordByDogIdQueryHandler(IMedicalRecordQueries queries)
     : IRequestHandler<GetMedicalRecordByDogIdQuery, MedicalRecordDto>
 {
-    public async Task<MedicalRecordDto> Handle(GetMedicalRecordByDogIdQuery request, CancellationToken cancellationToken)
-    {
-        var record = await _records.GetByDogIdAsync(request.DogId, cancellationToken)
-                     ?? throw new NotFoundException("Medical record for dog", request.DogId);
-        return record.ToDto();
-    }
+    public async Task<MedicalRecordDto> Handle(GetMedicalRecordByDogIdQuery request, CancellationToken cancellationToken) =>
+        await queries.GetByDogIdAsync(request.DogId, cancellationToken)
+        ?? throw new NotFoundException("Medical record for dog", request.DogId);
 }
 
-public record GetVaccinationsByDogIdQuery(Guid DogId) : IRequest<List<VaccinationDto>>;
+public record GetVaccinationsByDogIdQuery(Guid DogId) : IQuery<List<VaccinationDto>>;
 
-public class GetVaccinationsByDogIdQueryHandler(IVaccinationRepository _vaccinations)
+public class GetVaccinationsByDogIdQueryHandler(IVaccinationQueries queries)
     : IRequestHandler<GetVaccinationsByDogIdQuery, List<VaccinationDto>>
 {
-    public async Task<List<VaccinationDto>> Handle(GetVaccinationsByDogIdQuery request, CancellationToken cancellationToken)
-    {
-        var items = await _vaccinations.GetByDogIdAsync(request.DogId, cancellationToken);
-        return items.Select(v => v.ToDto()).ToList();
-    }
+    public Task<List<VaccinationDto>> Handle(GetVaccinationsByDogIdQuery request, CancellationToken cancellationToken) =>
+        queries.GetByDogIdAsync(request.DogId, cancellationToken);
 }
 
-public record GetOverdueVaccinationsQuery : IRequest<List<OverdueVaccinationDto>>;
+public record GetOverdueVaccinationsQuery : IQuery<List<OverdueVaccinationDto>>;
 
-public class GetOverdueVaccinationsQueryHandler(IVaccinationRepository _vaccinations)
+public class GetOverdueVaccinationsQueryHandler(IVaccinationQueries queries)
     : IRequestHandler<GetOverdueVaccinationsQuery, List<OverdueVaccinationDto>>
 {
-    public async Task<List<OverdueVaccinationDto>> Handle(GetOverdueVaccinationsQuery request, CancellationToken cancellationToken)
-    {
-        var items = await _vaccinations.GetOverdueAsync(DateTime.UtcNow, cancellationToken);
-        return items.Select(o => o.ToDto()).ToList();
-    }
-}
-
-public record GetVisitByIdQuery(string Id) : IRequest<VisitDto>;
-
-public class GetVisitByIdQueryHandler(IVisitRepository _visits) : IRequestHandler<GetVisitByIdQuery, VisitDto>
-{
-    public async Task<VisitDto> Handle(GetVisitByIdQuery request, CancellationToken cancellationToken)
-    {
-        var visit = await _visits.GetByIdAsync(request.Id, cancellationToken)
-                    ?? throw new NotFoundException("Visit", request.Id);
-        return visit.ToDto();
-    }
-}
-
-public record GetVisitsByDogIdQuery(Guid DogId, VisitType? Type, int PageNumber = 1, int PageSize = 20)
-    : IRequest<List<VisitDto>>;
-
-public class GetVisitsByDogIdQueryHandler(IVisitRepository _visits) : IRequestHandler<GetVisitsByDogIdQuery, List<VisitDto>>
-{
-    public async Task<List<VisitDto>> Handle(GetVisitsByDogIdQuery request, CancellationToken cancellationToken)
-    {
-        var items = await _visits.GetByDogIdAsync(request.DogId, request.Type, request.PageNumber, request.PageSize, cancellationToken);
-        return items.Select(v => v.ToDto()).ToList();
-    }
+    public Task<List<OverdueVaccinationDto>> Handle(GetOverdueVaccinationsQuery request, CancellationToken cancellationToken) =>
+        queries.GetOverdueAsync(DateTime.UtcNow, cancellationToken);
 }

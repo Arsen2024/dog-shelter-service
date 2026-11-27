@@ -1,7 +1,10 @@
-using HealthService.Application.Mappings;
+using AutoMapper;
+using HealthService.Application.Abstractions;
+using HealthService.Application.DTOs;
 using HealthService.Domain.Entities;
 using HealthService.Domain.Exceptions;
 using HealthService.Domain.Interfaces;
+using HealthService.Domain.ValueObjects;
 using MediatR;
 
 namespace HealthService.Application.Commands;
@@ -14,38 +17,38 @@ public record RecordVaccinationCommand(
     DateTime? NextDueAt,
     string? VeterinarianId,
     string? VeterinarianName,
-    List<VaccineInput> Vaccines) : IRequest<string>;
+    string? VeterinarianEmail,
+    List<VaccineInput> Vaccines) : ICommand<VaccinationDto>;
 
-public class RecordVaccinationCommandHandler(IMedicalRecordRepository _records, IVaccinationRepository _vaccinations)
-    : IRequestHandler<RecordVaccinationCommand, string>
+public class RecordVaccinationCommandHandler(
+    IMedicalRecordRepository records,
+    IVaccinationRepository vaccinations,
+    IMapper mapper) : IRequestHandler<RecordVaccinationCommand, VaccinationDto>
 {
-    public async Task<string> Handle(RecordVaccinationCommand request, CancellationToken cancellationToken)
+    public async Task<VaccinationDto> Handle(RecordVaccinationCommand request, CancellationToken cancellationToken)
     {
-        // Цілісність reference перевіряє прикладний код (FK в MongoDB немає)
-        var record = await _records.GetByDogIdAsync(request.DogId, cancellationToken)
+        // цілісність reference перевіряє прикладний код (FK в MongoDB немає)
+        var record = await records.GetByDogIdAsync(request.DogId, cancellationToken)
                      ?? throw new NotFoundException("Medical record for dog", request.DogId);
 
-        var vaccination = new Vaccination
-        {
-            DogId = request.DogId,
-            DogName = record.DogName,
-            MedicalRecordId = record.Id,
-            VaccinatedAt = request.VaccinatedAt.ToUtc(),
-            NextDueAt = request.NextDueAt?.ToUtc(),
-            Veterinarian = string.IsNullOrWhiteSpace(request.VeterinarianName)
-                ? null
-                : new Veterinarian { VetId = request.VeterinarianId, Name = request.VeterinarianName.Trim() },
-            Vaccines = request.Vaccines
-                .Select(v => new VaccineEntry
-                {
-                    Name = v.Name.Trim(),
-                    Manufacturer = v.Manufacturer,
-                    BatchNumber = v.BatchNumber,
-                    DoseMl = v.DoseMl
-                }).ToList()
-        };
+        var veterinarian = string.IsNullOrWhiteSpace(request.VeterinarianName)
+            ? null
+            : new Veterinarian(
+                request.VeterinarianId,
+                request.VeterinarianName,
+                string.IsNullOrWhiteSpace(request.VeterinarianEmail) ? null : new Email(request.VeterinarianEmail));
 
-        await _vaccinations.CreateAsync(vaccination, cancellationToken);
-        return vaccination.Id;
+        var vaccination = Vaccination.Create(
+            request.DogId,
+            record.DogName,
+            record.Id,
+            request.VaccinatedAt,
+            request.NextDueAt,
+            veterinarian,
+            request.Vaccines.Select(v => new VaccineEntry(v.Name, v.Manufacturer, v.BatchNumber, v.DoseMl)));
+
+        await vaccinations.AddAsync(vaccination, cancellationToken);
+
+        return mapper.Map<VaccinationDto>(vaccination);
     }
 }
