@@ -1,7 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Єдина залежність Domain: лише тип ObjectId. BSON-атрибутів у домені немає. -->
+    <PackageReference Include="MongoDB.Bson" Version="2.30.0" />
+  </ItemGroup>
+
 </Project>
