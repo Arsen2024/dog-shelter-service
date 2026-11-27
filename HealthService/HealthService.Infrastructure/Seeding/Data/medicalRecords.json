@@ -1,0 +1,55 @@
+[
+  {
+    "_id": { "$oid": "65f000000000000000000001" },
+    "dogId": "d0000000-0000-0000-0000-000000000001",
+    "dogName": "Rex",
+    "bloodType": "DEA 1.1+",
+    "allergies": [],
+    "chronicConditions": [],
+    "notes": [
+      { "text": "Здоровий, активний.", "author": "Dr. Petrenko", "createdAt": { "$date": "2026-02-01T10:00:00Z" } }
+    ],
+    "createdAt": { "$date": "2026-01-10T09:00:00Z" },
+    "version": { "$numberLong": "0" }
+  },
+  {
+    "_id": { "$oid": "65f000000000000000000002" },
+    "dogId": "d0000000-0000-0000-0000-000000000002",
+    "dogName": "Bella",
+    "allergies": [
+      { "substance": "Курка", "severity": "Moderate", "notedAt": { "$date": "2026-03-05T00:00:00Z" } }
+    ],
+    "chronicConditions": [
+      { "name": "Дисплазія кульшових суглобів", "diagnosedAt": { "$date": "2025-11-20T00:00:00Z" }, "notes": "Контроль раз на пів року" }
+    ],
+    "notes": [],
+    "createdAt": { "$date": "2026-01-10T09:05:00Z" },
+    "version": { "$numberLong": "0" }
+  },
+  {
+    "_id": { "$oid": "65f000000000000000000003" },
+    "dogId": "d0000000-0000-0000-0000-000000000003",
+    "dogName": "Max",
+    "allergies": [
+      { "substance": "Пилок", "severity": "Mild" }
+    ],
+    "chronicConditions": [],
+    "notes": [],
+    "createdAt": { "$date": "2026-01-11T11:00:00Z" },
+    "version": { "$numberLong": "0" }
+  },
+  {
+    "_id": { "$oid": "65f000000000000000000004" },
+    "dogId": "d0000000-0000-0000-0000-000000000004",
+    "dogName": "Luna",
+    "allergies": [],
+    "chronicConditions": [
+      { "name": "Післяопераційна реабілітація" }
+    ],
+    "notes": [
+      { "text": "Потребує спокою 3 тижні.", "author": "Dr. Petrenko", "createdAt": { "$date": "2026-10-20T12:00:00Z" } }
+    ],
+    "createdAt": { "$date": "2026-01-11T11:30:00Z" },
+    "version": { "$numberLong": "0" }
+  }
+]

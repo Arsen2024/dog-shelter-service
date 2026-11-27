@@ -1,0 +1,58 @@
+[
+  {
+    "_id": { "$oid": "65f100000000000000000001" },
+    "dogId": "d0000000-0000-0000-0000-000000000001",
+    "dogName": "Rex",
+    "medicalRecordId": { "$oid": "65f000000000000000000001" },
+    "vaccinatedAt": { "$date": "2026-02-01T00:00:00Z" },
+    "nextDueAt": { "$date": "2027-02-01T00:00:00Z" },
+    "veterinarian": { "id": "vet-1", "name": "Dr. Petrenko" },
+    "vaccines": [
+      { "name": "Rabies", "manufacturer": "Nobivac", "batchNumber": "R-2201", "doseMl": 1.0 },
+      { "name": "DHPPi", "manufacturer": "Eurican", "batchNumber": "E-9921", "doseMl": 1.0 }
+    ],
+    "createdAt": { "$date": "2026-02-01T10:30:00Z" },
+    "version": { "$numberLong": "0" }
+  },
+  {
+    "_id": { "$oid": "65f100000000000000000002" },
+    "dogId": "d0000000-0000-0000-0000-000000000002",
+    "dogName": "Bella",
+    "medicalRecordId": { "$oid": "65f000000000000000000002" },
+    "vaccinatedAt": { "$date": "2025-05-10T00:00:00Z" },
+    "nextDueAt": { "$date": "2026-05-10T00:00:00Z" },
+    "veterinarian": { "id": "vet-1", "name": "Dr. Petrenko" },
+    "vaccines": [
+      { "name": "Rabies", "manufacturer": "Nobivac", "batchNumber": "R-1888" }
+    ],
+    "createdAt": { "$date": "2025-05-10T10:00:00Z" },
+    "version": { "$numberLong": "0" }
+  },
+  {
+    "_id": { "$oid": "65f100000000000000000003" },
+    "dogId": "d0000000-0000-0000-0000-000000000003",
+    "dogName": "Max",
+    "medicalRecordId": { "$oid": "65f000000000000000000003" },
+    "vaccinatedAt": { "$date": "2026-03-15T00:00:00Z" },
+    "nextDueAt": { "$date": "2027-03-15T00:00:00Z" },
+    "vaccines": [
+      { "name": "DHPPi", "batchNumber": "E-7710", "doseMl": 0.5 },
+      { "name": "Leptospirosis" }
+    ],
+    "createdAt": { "$date": "2026-03-15T10:00:00Z" },
+    "version": { "$numberLong": "0" }
+  },
+  {
+    "_id": { "$oid": "65f100000000000000000004" },
+    "dogId": "d0000000-0000-0000-0000-000000000004",
+    "dogName": "Luna",
+    "medicalRecordId": { "$oid": "65f000000000000000000004" },
+    "vaccinatedAt": { "$date": "2025-09-01T00:00:00Z" },
+    "nextDueAt": { "$date": "2026-09-01T00:00:00Z" },
+    "vaccines": [
+      { "name": "Rabies", "manufacturer": "Rabisin" }
+    ],
+    "createdAt": { "$date": "2025-09-01T10:00:00Z" },
+    "version": { "$numberLong": "0" }
+  }
+]
