@@ -7,12 +7,13 @@ namespace HealthService.API.Controllers;
 
 [ApiController]
 [Route("api/internal")]
-public class InternalController(IMediator _mediator) : ControllerBase
+public class InternalController(ISender sender) : ControllerBase
 {
+    /// <summary>Імітація події DogUpdated із DogsService: оновлює денормалізоване dogName (Лаб. 08 — обробник повідомлень).</summary>
     [HttpPut("dogs/{dogId:guid}/name")]
-    public async Task<IActionResult> Rename(Guid dogId, [FromBody] RenameDogRequest request)
+    public async Task<IActionResult> Rename(Guid dogId, [FromBody] RenameDogRequest request, CancellationToken ct)
     {
-        await _mediator.Send(new RenameDogCommand(dogId, request.Name));
+        await sender.Send(new RenameDogCommand(dogId, request.Name), ct);
         return NoContent();
     }
 }

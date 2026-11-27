@@ -1,11 +1,8 @@
 using System.Text.Json.Serialization;
-using System.Threading.RateLimiting;
 using HealthService.API.Middleware;
 using HealthService.Application;
-using HealthService.Domain.Interfaces;
+using HealthService.Application.Abstractions;
 using HealthService.Infrastructure;
-using HealthService.Infrastructure.Mongo;
-using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,28 +12,22 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddRateLimiter(options =>
-{
-    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+// ProblemDetails для всіх помилок + централізований обробник винятків
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
-    options.AddFixedWindowLimiter("fixed", o =>
-    {
-        o.Window = TimeSpan.FromSeconds(5);
-        o.PermitLimit = 10;
-        o.QueueLimit = 0;
-        o.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-    });
-});
-
-var mongoSettings = builder.Configuration.GetSection("MongoDb").Get<MongoDbSettings>() ?? new MongoDbSettings();
-
+// кожен шар реєструє свої залежності методом розширення
 builder.Services.AddScoped<ICurrentUser, HttpCurrentUser>();
 builder.Services.AddApplication();
-builder.Services.AddInfrastructure(mongoSettings);
+builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+// перевірка конфігурації AutoMapper при старті
+app.Services.AssertMappingConfiguration();
+
+app.UseExceptionHandler();
+app.UseStatusCodePages();
 
 if (app.Environment.IsDevelopment())
 {
@@ -44,10 +35,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.MapGet("/ping", () => "HealthService.Version1.0.0").RequireRateLimiting("fixed");
+app.MapGet("/ping", () => "HealthService.Version4.0.0");
+app.MapHealthChecks("/health");     // health check MongoDB
 
 app.UseHttpsRedirection();
-app.UseRateLimiter();
 app.MapControllers();
 
 app.Run();

@@ -1,29 +1,28 @@
 using HealthService.Application.Commands;
+using HealthService.Application.DTOs;
 using HealthService.Application.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.RateLimiting;
 
 namespace HealthService.API.Controllers;
 
 [ApiController]
-[EnableRateLimiting("fixed")]
 [Route("api/vaccinations")]
-public class VaccinationsController(IMediator _mediator) : ControllerBase
+public class VaccinationsController(ISender sender) : ControllerBase
 {
     [HttpGet("by-dog/{dogId:guid}")]
-    public async Task<IActionResult> GetByDog(Guid dogId) =>
-        Ok(await _mediator.Send(new GetVaccinationsByDogIdQuery(dogId)));
+    public async Task<ActionResult<List<VaccinationDto>>> GetByDog(Guid dogId, CancellationToken ct) =>
+        Ok(await sender.Send(new GetVaccinationsByDogIdQuery(dogId), ct));
 
     /// <summary>Собаки, остання вакцинація яких прострочена (aggregation pipeline).</summary>
     [HttpGet("overdue")]
-    public async Task<IActionResult> Overdue() =>
-        Ok(await _mediator.Send(new GetOverdueVaccinationsQuery()));
+    public async Task<ActionResult<List<OverdueVaccinationDto>>> Overdue(CancellationToken ct) =>
+        Ok(await sender.Send(new GetOverdueVaccinationsQuery(), ct));
 
     [HttpPost]
-    public async Task<IActionResult> Record([FromBody] RecordVaccinationCommand command)
+    public async Task<ActionResult<VaccinationDto>> Record([FromBody] RecordVaccinationCommand command, CancellationToken ct)
     {
-        var id = await _mediator.Send(command);
-        return StatusCode(StatusCodes.Status201Created, new { id });
+        var created = await sender.Send(command, ct);
+        return CreatedAtAction(nameof(GetByDog), new { dogId = created.DogId }, created);
     }
 }

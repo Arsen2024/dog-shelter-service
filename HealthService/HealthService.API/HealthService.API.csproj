@@ -8,6 +8,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
   </ItemGroup>
   <ItemGroup>
+    <!-- WebApi → Application; посилання на Infrastructure — лише для реєстрації залежностей (AddInfrastructure) -->
     <ProjectReference Include="..\HealthService.Application\HealthService.Application.csproj" />
     <ProjectReference Include="..\HealthService.Infrastructure\HealthService.Infrastructure.csproj" />
   </ItemGroup>

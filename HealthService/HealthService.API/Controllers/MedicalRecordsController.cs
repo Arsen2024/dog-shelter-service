@@ -1,39 +1,38 @@
 using HealthService.API.Contracts;
 using HealthService.Application.Commands;
+using HealthService.Application.DTOs;
 using HealthService.Application.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.RateLimiting;
 
 namespace HealthService.API.Controllers;
 
 [ApiController]
-[EnableRateLimiting("fixed")]
 [Route("api/medical-records")]
-public class MedicalRecordsController(IMediator _mediator) : ControllerBase
+public class MedicalRecordsController(ISender sender) : ControllerBase
 {
     [HttpGet("by-dog/{dogId:guid}")]
-    public async Task<IActionResult> GetByDog(Guid dogId) =>
-        Ok(await _mediator.Send(new GetMedicalRecordByDogIdQuery(dogId)));
+    public async Task<ActionResult<MedicalRecordDto>> GetByDog(Guid dogId, CancellationToken ct) =>
+        Ok(await sender.Send(new GetMedicalRecordByDogIdQuery(dogId), ct));
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateMedicalRecordCommand command)
+    public async Task<ActionResult<MedicalRecordDto>> Create([FromBody] CreateMedicalRecordCommand command, CancellationToken ct)
     {
-        var id = await _mediator.Send(command);
-        return CreatedAtAction(nameof(GetByDog), new { dogId = command.DogId }, new { id });
+        var created = await sender.Send(command, ct);
+        return CreatedAtAction(nameof(GetByDog), new { dogId = created.DogId }, created);
     }
 
     [HttpPost("by-dog/{dogId:guid}/allergies")]
-    public async Task<IActionResult> AddAllergy(Guid dogId, [FromBody] AddAllergyRequest request)
+    public async Task<IActionResult> AddAllergy(Guid dogId, [FromBody] AddAllergyRequest request, CancellationToken ct)
     {
-        await _mediator.Send(new AddAllergyCommand(dogId, request.Substance, request.Severity, request.NotedAt));
+        await sender.Send(new AddAllergyCommand(dogId, request.Substance, request.Severity, request.NotedAt), ct);
         return NoContent();
     }
 
     [HttpPost("by-dog/{dogId:guid}/notes")]
-    public async Task<IActionResult> AddNote(Guid dogId, [FromBody] AddNoteRequest request)
+    public async Task<IActionResult> AddNote(Guid dogId, [FromBody] AddNoteRequest request, CancellationToken ct)
     {
-        await _mediator.Send(new AddMedicalNoteCommand(dogId, request.Text));
+        await sender.Send(new AddMedicalNoteCommand(dogId, request.Text), ct);
         return NoContent();
     }
 }
