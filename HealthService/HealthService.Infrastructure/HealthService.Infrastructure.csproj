@@ -1,14 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
     <PackageReference Include="MongoDB.Driver" Version="2.30.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
   </ItemGroup>
+
   <ItemGroup>
+    <!-- Infrastructure → Application, Domain: реалізує інтерфейси внутрішніх шарів -->
+    <ProjectReference Include="..\HealthService.Application\HealthService.Application.csproj" />
     <ProjectReference Include="..\HealthService.Domain\HealthService.Domain.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <!-- початкові дані — JSON (Mongo Extended JSON), вбудовані в збірку -->
+    <EmbeddedResource Include="Seeding\Data\*.json" LogicalName="Seeding.%(Filename)%(Extension)" />
+  </ItemGroup>
+
 </Project>
